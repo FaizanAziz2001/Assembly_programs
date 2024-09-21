@@ -1,0 +1,65 @@
+     1                                  org 100h
+     2                                  
+     3                                  
+     4 00000000 E9C700                  jmp start
+     5 00000003 785634127856341278-     num1:dd 12345678h,12345678h,12345678h,12345678h,56789abch,56789abch,56789abch,56789abch  ;256 bit number
+     6 0000000C 56341278563412BC9A-
+     7 00000015 7856BC9A7856BC9A78-
+     8 0000001E 56BC9A7856         
+     9 00000023 214365872143658721-     num2:dd 87654321h,87654321h,87654321h,87654321h,12345678h,12345678h,12345678h,12345678h   ;256 bit number
+    10 0000002C 436587214365877856-
+    11 00000035 341278563412785634-
+    12 0000003E 1278563412         
+    13 00000043 00000000<rept>          result: times 16 dd 0h ;512 bit result
+    14                                  
+    15                                  multiply:
+    16 00000083 55                      	push bp
+    17 00000084 89E5                    	mov bp,sp
+    18 00000086 668B5E06                	mov ebx,[bp+6]
+    19 0000008A 8B4E04                  	mov cx,[bp+4]
+    20 0000008D 31FF                    	xor di,di
+    21                                  
+    22                                  	outerloop:
+    23 0000008F F8                      			CLC
+    24 00000090 57                      			push di
+    25 00000091 51                      			push cx
+    26 00000092 B90800                  			mov cx,8
+    27 00000095 31F6                    			xor si,si
+    28                                  			innerloop:
+    29 00000097 668B84[0300]            				mov eax,[num1+si]
+    30 0000009C 66678B13                				mov edx,[ebx]
+    31 000000A0 66F7E2                  				mul edx
+    32 000000A3 660185[4300]            				add [result+di],eax
+    33 000000A8 661195[4700]            				adc [result+di+4],edx
+    34 000000AD 81C60400                				add si,4
+    35 000000B1 81C70400                				add di,4
+    36 000000B5 E2E0                    				loop innerloop
+    37                                  
+    38 000000B7 59                      			pop cx
+    39 000000B8 5F                      			pop di
+    40 000000B9 81C70400                			add di,4
+    41 000000BD 6681C304000000          			add ebx,4
+    42 000000C4 E2C9                    			loop outerloop
+    43                                  
+    44 000000C6 5D                      	pop bp
+    45 000000C7 C20400                  	ret 4
+    46                                  
+    47                                  start:
+    48 000000CA 66B8[23000000]          	mov eax,num2
+    49 000000D0 B90800                  	mov cx,8
+    50 000000D3 6650                    	push eax
+    51 000000D5 51                      	push cx
+    52 000000D6 E8AAFF                  	call multiply
+    53                                  
+    54                                  end:
+    55 000000D9 B8004C                  mov ax,4c00h
+    56 000000DC CD21                    int 21h
+    57                                  
+    58                                  
+    59                                  
+    60                                  
+    61                                  
+    62                                  
+    63                                  
+    64                                  
+    65                                  
